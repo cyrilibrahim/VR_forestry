@@ -2,43 +2,80 @@
 #include <gl/glut.h> 
 #include <osgViewer/Viewer> 
 #include <osgText/Text> 
-osg::Node* CreateScene()
-{
-	// Création d'un nœud et désactivation de la lumière pour celui-ci
+#include <osg/ShapeDrawable>
+#include <osgDB/ReadFile>
+#include <osg/PositionAttitudeTransform>
+#include <osgGA/TrackballManipulator>
+#include <string>
+#include <iostream>
+
+osg::Node* createHeightField(std::string heightFile, std::string texFile) {
+
+	osg::Image* heightMap = osgDB::readImageFile(heightFile);
+
+	if (!heightMap) {
+		std::cout << "Carte des hauteurs introuvable veuillez verifier le nom du ficher.";
+		return 0;
+	}
+
+	osg::HeightField* heightField = new osg::HeightField();
+	heightField->allocate(heightMap->s(), heightMap->t());
+	heightField->setOrigin(osg::Vec3(-heightMap->s() / 2, -heightMap->t() / 2, 0));
+	heightField->setXInterval(1.0f);
+	heightField->setYInterval(1.0f);
+	heightField->setSkirtHeight(1.0f);
+
+	for (int r = 0; r < heightField->getNumRows(); r++) {
+		for (int c = 0; c < heightField->getNumColumns(); c++) {
+			heightField->setHeight(c, r, ((*heightMap->data(c, r)) / 255.0f) * 80.0f);
+		}
+	}
+
 	osg::Geode* geode = new osg::Geode();
-	osg::StateSet* stateset = geode->getOrCreateStateSet();
-	stateset->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+	geode->addDrawable(new osg::ShapeDrawable(heightField));
 
-	// Création d'une projection orthographique afin d'avoir le texte aligné à l'écran
-	osg::Camera* camera = new osg::Camera;
-	camera->setProjectionMatrix(osg::Matrix::ortho2D(0, 512, 0, 512));
-	camera->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
-	camera->setViewMatrix(osg::Matrix::identity());
-	camera->addChild(geode);
+	osg::Texture2D* tex = new osg::Texture2D(osgDB::readImageFile(texFile));
 
-	// Création d'un texte et ajout au noeud
-	osgText::Text* text = new osgText::Text;
-	geode->addDrawable(text);
+	if (!tex) {
+		std::cout << "Texture introuvable veuillez verifier le nom du ficher.";
+		return 0;
+	}
 
-	// Définit les données du texte
-	text->setPosition(osg::Vec3(16.f, 16.0f, 0.0f));
-	text->setColor(osg::Vec4(1.0f, 1.0f, 0.0f, 1.0f));
-	text->setText("Hello World");
+	tex->setFilter(osg::Texture2D::MIN_FILTER, osg::Texture2D::LINEAR_MIPMAP_LINEAR);
+	tex->setFilter(osg::Texture2D::MAG_FILTER, osg::Texture2D::LINEAR);
+	tex->setWrap(osg::Texture::WRAP_S, osg::Texture::REPEAT);
+	tex->setWrap(osg::Texture::WRAP_T, osg::Texture::REPEAT);
+	geode->getOrCreateStateSet()->setTextureAttributeAndModes(0, tex);
 
-	return camera;
+	return geode;
 }
+
 
 int main(void)
 {
-	// Construit le viewer
-	osg::ref_ptr<osgViewer::Viewer> viewer = new osgViewer::Viewer;
+	//Initialize the scene viewer
+	osgViewer::Viewer viewer;
 
-	// Créer une fenêtre 512x512 et la positionner en 32, 32
-	viewer->setUpViewInWindow(32, 32, 512, 512);
+	//Root of the scene graph
+	osg::Group* root = new osg::Group();
 
-	// Définit les données de scène que le viewer dessinera
-	viewer->setSceneData(CreateScene());
+	std::string heightMapFile = "client_data/Clip2_512x512.tif";
+	std::string texMapFile = "client_data/terrain.jpg";
 
-	// Exécute la boucle principale
-	return viewer->run();
+	osg::Node* terrainModele = createHeightField(heightMapFile, texMapFile);
+
+	root->addChild(terrainModele);
+
+	//The final step is to set up and enter a simulation loop.
+	viewer.setSceneData(root);
+
+	viewer.setCameraManipulator(new osgGA::TrackballManipulator());
+	viewer.realize();
+
+	while (!viewer.done()) {
+		viewer.frame();
+	}
+
+	return 0;
+
 }
