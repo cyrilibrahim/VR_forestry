@@ -1,0 +1,2 @@
+﻿  main.cpp
+c:\users\bureau\desktop\réalité virtuel\test ogs\osgtestapp\main.cpp(2): fatal error C1083: Impossible d'ouvrir le fichier include : 'gl/glut.h' : No such file or directory
