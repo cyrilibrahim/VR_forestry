@@ -23,14 +23,14 @@ int main(void)
 	//Root of the scene graph
 	osg::Group* root = new osg::Group();
 
-	std::string heightMapFile = "client_data/Clip2_512x512.tif";
+	std::string heightMapFile = "client_data/newimg.tif";
 	std::string texMapFile = "client_data/terrain2.jpg";
 
 	//Class qui gere les donnes des differents fichier
 	ClientDataManager* clientDataManager = new ClientDataManager();
 
 	//Construction du modele 3d du terrain
-	osg::Node* terrainModele = createHeightField(heightMapFile, texMapFile, clientDataManager->getMinHeight(),
+	osg::Geode* terrainModele = createHeightField(heightMapFile, texMapFile, clientDataManager->getMinHeight(),
 		clientDataManager->getMaxHeight(), clientDataManager->getWorldFileParameters());
 	
 	//On ajoute le terrain au noeud racine
