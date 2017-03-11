@@ -1,5 +1,6 @@
 #pragma once
 #include "tinyxml2.h"
+#include <fstream>
 
 //Gere de parser les bons fichier et acceder aux données essentiels assez facilement
 
@@ -12,9 +13,11 @@ public:
 	double getMaxHeight();
 	//Hauteur minimum pour le terrain
 	double getMinHeight();
+	//Retourne les parametres du "World file"
+	double* getWorldFileParameters();
 
 private:
 	tinyxml2::XMLDocument* xmlDoc;
-
+	double worldFileParameters[6];
 };
 

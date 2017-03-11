@@ -4,6 +4,8 @@
 
 ClientDataManager::ClientDataManager()
 {
+
+	//Chargement du fichier XML
 	xmlDoc = new tinyxml2::XMLDocument();
 	xmlDoc->LoadFile("C:/OpenSceneGraph/datasets/client_data/Clip2.tif.aux.xml");
 
@@ -12,6 +14,18 @@ ClientDataManager::ClientDataManager()
 		std::cout << xmlDoc->GetErrorStr1();
 		exit(0);
 	}
+
+	//Recuperation des parametres du "World File"
+	std::ifstream infile("C:/OpenSceneGraph/datasets/client_data/Clip2.wld");
+
+	double currentParameter;
+	int i = 0;
+
+	while (infile >> currentParameter) {
+		worldFileParameters[i] = currentParameter;
+		i++;
+	}
+	
 }
 
 
@@ -38,4 +52,9 @@ double ClientDataManager::getMinHeight()
 	double minHeight = std::stod(minHeightstr);
 
 	return minHeight;
+}
+
+double * ClientDataManager::getWorldFileParameters()
+{
+	return worldFileParameters;
 }

@@ -16,7 +16,7 @@ double normalizeBetweenAandB(double number, double a, double b) {
 
 //Fichier pour créer le modèle 3D du terrain à partir de toutes les informations
 
-osg::Node* createHeightField(std::string heightFile, std::string texFile, double heightMin, double heightMax) {
+osg::Node* createHeightField(std::string heightFile, std::string texFile, double heightMin, double heightMax, double* worldParameters) {
 
 	osg::Image* heightMap = osgDB::readImageFile(heightFile);
 	
@@ -33,7 +33,7 @@ osg::Node* createHeightField(std::string heightFile, std::string texFile, double
 	heightField->setOrigin(osg::Vec3(-heightMap->s() / 2, -heightMap->t() / 2, 0));
 	heightField->setXInterval(1.0f);
 	heightField->setYInterval(1.0f);
-	heightField->setSkirtHeight(1.0f);
+	heightField->setSkirtHeight(heightMax - heightMin);
 
 
 	for (int r = 0; r < heightField->getNumRows(); r++) {
@@ -41,7 +41,6 @@ osg::Node* createHeightField(std::string heightFile, std::string texFile, double
 			
 			double normalizedHeight = normalizeBetweenAandB(*heightMap->data(c, r),heightMin,heightMax);
 			heightField->setHeight(c, r, normalizedHeight);
-			std::cout << normalizedHeight << "\n";
 		}
 	}
 	
@@ -51,7 +50,6 @@ osg::Node* createHeightField(std::string heightFile, std::string texFile, double
 	osg::Texture2D* tex = new osg::Texture2D(osgDB::readImageFile(texFile));
 
 	if (!tex) {
-		std::cout << "Texture introuvable veuillez verifier le nom du ficher.";
 		return 0;
 	}
 

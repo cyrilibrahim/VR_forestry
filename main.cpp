@@ -30,7 +30,8 @@ int main(void)
 	ClientDataManager* clientDataManager = new ClientDataManager();
 
 	//Construction du modele 3d du terrain
-	osg::Node* terrainModele = createHeightField(heightMapFile, texMapFile, clientDataManager->getMinHeight(), clientDataManager->getMaxHeight());
+	osg::Node* terrainModele = createHeightField(heightMapFile, texMapFile, clientDataManager->getMinHeight(),
+		clientDataManager->getMaxHeight(), clientDataManager->getWorldFileParameters());
 	
 	//On ajoute le terrain au noeud racine
 	root->addChild(terrainModele);
