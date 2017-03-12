@@ -12,6 +12,7 @@
 #include "terrainCreator.h"
 #include "clientDataManager.h"
 
+#include "osgTerrain/TerrainTile"
 
 
 int main(void)
@@ -23,7 +24,26 @@ int main(void)
 	//Root of the scene graph
 	osg::Group* root = new osg::Group();
 
-	std::string heightMapFile = "client_data/newimg.tif";
+	osg::Node* firstTree = NULL;
+	firstTree = osgDB::readNodeFile("trees_models/tree2/source/TreeTest01.obj");
+
+	osg::Geode* boxGeode = new osg::Geode;
+	osg::Box* box = new osg::Box(osg::Vec3(-68.0 * 2000, 51.05183854 * 2000, 900),3.0f);
+	osg::ShapeDrawable* sd = new osg::ShapeDrawable(box);
+	boxGeode->addDrawable(sd);
+
+	root->addChild(boxGeode);
+
+
+	//Declare transform,initialize with defaults.
+	osg::PositionAttitudeTransform* treeXForm = new osg::PositionAttitudeTransform();
+	treeXForm->addChild(firstTree);
+	root->addChild(treeXForm);
+
+	
+	treeXForm->setPosition(osg::Vec3(-136029, 102108, 800));
+
+	std::string heightMapFile = "client_data/smooth.tif";
 	std::string texMapFile = "client_data/terrain2.jpg";
 
 	//Class qui gere les donnes des differents fichier
@@ -49,3 +69,4 @@ int main(void)
 	return 0;
 
 }
+

@@ -21,12 +21,21 @@ double getXWorldCoordinate(double oldX, double oldY, double* worldParameters) {
 	double newX = worldParameters[0] * oldX + worldParameters[2] * oldY + worldParameters[4];
 	//Pour l'instant nous transformons seulement les points lattitude longitude comme point dans l'espace X Y scaler
 	//nous les convertirons par la suite. 
+
+	std::cout << "new " << newX << "\n";
+	//std::cout << "new mult" << oldX * 1000 << "\n";
+	std::cout << "old  " << oldX << "\n";
+
 	return newX * 2000;
 }
 double getYWorldCoordinate(double oldX, double oldY, double* worldParameters) {
 	double newY = worldParameters[1] * oldX + worldParameters[3] * oldY + worldParameters[5];
 	//Pour l'instant nous transformons seulement les points lattitude longitude comme point dans l'espace X Y scaler
 	//nous les convertirons par la suite. 
+	//std::cout << "new " << newY  << "\n";
+	//std::cout << "new mult" << newY * 1000 << "\n";
+	//std::cout << "old  " << oldY << "\n";
+
 	return newY * 2000;
 }
 
@@ -60,42 +69,44 @@ osg::Geode* createHeightField(std::string heightFile, std::string texFile, doubl
 		return 0;
 	}
 
+	//heightMap->setOrigin(osg::Image::TOP_LEFT);
+
 	int imageHeight = heightMap->t();
 	int imageWidth = heightMap->s();
+
+	//std::cout << heightMap->setOrigin();
 
 	osg::Geode* geode = new osg::Geode();
 	osg::HeightField* heightField = new osg::HeightField();
 
-	osg::Vec3 cornerUpperLeft;
+	osg::Vec3 cornerUpperLeft; //LOWER LEFT
 	cornerUpperLeft.set(getXWorldCoordinate(0, 0, worldParameters), getYWorldCoordinate(0, 0, worldParameters), 0.0);
-	//std::cout << cornerUpperLeft.x() << " " << cornerUpperLeft.y() << "\n";
+	std::cout << cornerUpperLeft.x() << " " << cornerUpperLeft.y() << "\n";
 	
-	osg::Vec3 cornerLowerLeft;
+	osg::Vec3 cornerLowerLeft;//UPPER LEFT
 	cornerLowerLeft.set(getXWorldCoordinate(0, imageHeight, worldParameters), getYWorldCoordinate(0, imageHeight, worldParameters), 0.0);
-	//std::cout << cornerLowerLeft.x() << " " << cornerLowerLeft.y() << "\n";
+	std::cout << cornerLowerLeft.x() << " " << cornerLowerLeft.y() << "\n";
 	
-	osg::Vec3 cornerLowerRight;
+	osg::Vec3 cornerLowerRight; //UPPER RIGHT
 	cornerLowerRight.set(getXWorldCoordinate(imageWidth, imageHeight, worldParameters), getYWorldCoordinate(imageWidth, imageHeight, worldParameters), 0.0);
-	//std::cout << cornerLowerRight.x() << " " << cornerLowerRight.y() << "\n";
+	std::cout << cornerLowerRight.x() << " " << cornerLowerRight.y() << "\n";
 	
-	osg::Vec3 cornerUpperRight;
+	osg::Vec3 cornerUpperRight; //LOWER RIGHT
 	cornerUpperRight.set(getXWorldCoordinate(imageWidth, 0, worldParameters), getYWorldCoordinate(imageWidth, 0, worldParameters), 0.0);
-	//std::cout << cornerUpperRight.x() << " " << cornerUpperRight.y() << "\n";
+	std::cout << cornerUpperRight.x() << " " << cornerUpperRight.y() << "\n";
 
 	osg::Vec3 upperVec = cornerUpperRight - cornerUpperLeft;
-	double realWidth = upperVec.length();
+	double realWidth = abs(cornerUpperRight.x() - cornerUpperLeft.x());
 	osg::Vec3 sideVec = cornerLowerLeft - cornerUpperLeft;
-	double realHeight = sideVec.length();
+	double realHeight  = abs(cornerLowerLeft.y() - cornerUpperLeft.y());
 
 	
 
 	heightField->allocate(imageWidth, imageHeight);
-	heightField->setOrigin(cornerUpperLeft);
-	heightField->setXInterval(realWidth / imageWidth);
-	heightField->setYInterval(realHeight / imageHeight);
+	heightField->setOrigin(cornerLowerLeft);
+	heightField->setXInterval(realWidth / (imageWidth));
+	heightField->setYInterval(realHeight / (imageHeight));
 	heightField->setSkirtHeight(heightMax - heightMin);
-
-
 
 	for (int r = 0; r < heightField->getNumRows(); r++) {
 		for (int c = 0; c < heightField->getNumColumns(); c++) {
@@ -105,10 +116,12 @@ osg::Geode* createHeightField(std::string heightFile, std::string texFile, doubl
 		}
 	}
 	
-	geode->addDrawable(new osg::ShapeDrawable(heightField));
-
 	
 
+	
+	osg::ShapeDrawable* sd = new osg::ShapeDrawable(heightField);
+
+	geode->addDrawable(sd);
 
 	osg::Texture2D* tex = new osg::Texture2D(osgDB::readImageFile(texFile));
 
