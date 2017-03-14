@@ -1,5 +1,5 @@
-#include <gl/glut.h> 
-#include <osgViewer/Viewer> 
+#include <GL/glut.h>
+#include <osgViewer/Viewer>
 #include <osg/CoordinateSystemNode>
 #include <iostream>
 #pragma once

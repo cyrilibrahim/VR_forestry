@@ -5,7 +5,7 @@
 
 #ifndef H_COOKBOOK_CH6_SKYBOX
 #define H_COOKBOOK_CH6_SKYBOX
-#include <gl/glut.h> 
+#include <GL/glut.h>
 #include <osg/TextureCubeMap>
 #include <osg/Transform>
 #include <osg/Depth>

@@ -9,7 +9,7 @@ ClientDataManager::ClientDataManager()
 
 	//Chargement du fichier XML
 	xmlDoc = new tinyxml2::XMLDocument();
-	xmlDoc->LoadFile("C:/OpenSceneGraph/datasets/client_data/Clip2.tif.aux.xml");
+	xmlDoc->LoadFile("client_data/Clip2.tif.aux.xml");
 
 	if (xmlDoc->Error()) {
 		std::cout << "ERROR IN PARSING THE FILE";
@@ -18,7 +18,7 @@ ClientDataManager::ClientDataManager()
 	}
 
 	//Recuperation des parametres du "World File"
-	std::ifstream infile("C:/OpenSceneGraph/datasets/client_data/Clip2-modif.wld");
+	std::ifstream infile("client_data/Clip2-modif.wld");
 
 	long double currentParameter;
 	int i = 0;
@@ -29,7 +29,7 @@ ClientDataManager::ClientDataManager()
 	}
 
 	//Recuperation des arbres
-	std::ifstream  data("C:/OpenSceneGraph/datasets/client_data/Arbres.csv");
+	std::ifstream  data("client_data/Arbres.csv");
 
 	std::string line;
 
@@ -51,7 +51,7 @@ ClientDataManager::ClientDataManager()
 			else if(k == 1){
 				lat = atof(cell.c_str());
 			}
-			
+
 			k++;
 		}
 		//std::cout << "Longitude " << lon << " Latitude" << lat << "\n";

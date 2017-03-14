@@ -1,9 +1,9 @@
 #pragma once
 
-#include <gl/glut.h> 
-#include <osgViewer/Viewer> 
-#include <osgText/Text> 
-#include <osg/PolygonMode> 
+#include <GL/glut.h>
+#include <osgViewer/Viewer>
+#include <osgText/Text>
+#include <osg/PolygonMode>
 #include <osg/ShapeDrawable>
 #include <osgDB/ReadFile>
 #include <string>
@@ -35,7 +35,7 @@ osg::Geode* createTerrain(std::string heightFile, std::string texFile, double he
 	osg::Geometry* terrainGeometry = new osg::Geometry();
 
 	geode->addDrawable(terrainGeometry);
-	
+
 	osg::Vec3Array* terrainVertices = new osg::Vec3Array;
 	osg::Vec2Array* texcoords = new osg::Vec2Array;
 
@@ -56,18 +56,18 @@ osg::Geode* createTerrain(std::string heightFile, std::string texFile, double he
 		for (int c = 0; c < ((imageWidth - 1)); c++) {
 
 
-			osg::DrawElementsUInt* faceOne = new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);			
+			osg::DrawElementsUInt* faceOne = new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
 			faceOne->push_back(r*(imageWidth)+c);
 			faceOne->push_back(r*(imageWidth)+c + 1);
 			faceOne->push_back((r + 1) *(imageWidth) + c + 1);
-			
+
 
 			osg::DrawElementsUInt* faceTwo = new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
 			faceTwo->push_back((r + 1)*(imageWidth)+c);
 			faceTwo->push_back((r + 1) *(imageWidth)+c + 1);
 			faceTwo->push_back(r*(imageWidth) + c);
-			
-			
+
+
 
 			terrainGeometry->addPrimitiveSet(faceOne);
 			terrainGeometry->addPrimitiveSet(faceTwo);
