@@ -10,14 +10,17 @@ public:
 	ClientDataManager();
 	~ClientDataManager();
 	//Hauteur maximal pour le terrain
-	double getMaxHeight();
+	float getMaxHeight();
 	//Hauteur minimum pour le terrain
-	double getMinHeight();
+	float getMinHeight();
 	//Retourne les parametres du "World file"
-	double* getWorldFileParameters();
+	float* getWorldFileParameters();
+
+	float ** getTreeData();
 
 private:
 	tinyxml2::XMLDocument* xmlDoc;
-	double worldFileParameters[6];
+	float worldFileParameters[6];
+	float** treeData;
 };
 

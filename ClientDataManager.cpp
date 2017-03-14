@@ -1,5 +1,7 @@
 #include "ClientDataManager.h"
 #include <string>
+#include <fstream>
+#include <sstream>
 #include <iostream>
 
 ClientDataManager::ClientDataManager()
@@ -16,16 +18,46 @@ ClientDataManager::ClientDataManager()
 	}
 
 	//Recuperation des parametres du "World File"
-	std::ifstream infile("C:/OpenSceneGraph/datasets/client_data/Clip2.wld");
+	std::ifstream infile("C:/OpenSceneGraph/datasets/client_data/Clip2-modif.wld");
 
-	double currentParameter;
+	long double currentParameter;
 	int i = 0;
 
 	while (infile >> currentParameter) {
 		worldFileParameters[i] = currentParameter;
 		i++;
 	}
-	
+
+	//Recuperation des arbres
+	std::ifstream  data("C:/OpenSceneGraph/datasets/client_data/Arbres.csv");
+
+	std::string line;
+
+	int j = 1;
+
+	while (std::getline(data, line))
+	{
+		int k = 0;
+		std::stringstream  lineStream(line);
+		std::string        cell;
+
+		double lon, lat;
+
+		while (std::getline(lineStream, cell, ','))
+		{
+			if (k == 0) {
+				lon = atof(cell.c_str());
+			}
+			else if(k == 1){
+				lat = atof(cell.c_str());
+			}
+			
+			k++;
+		}
+		//std::cout << "Longitude " << lon << " Latitude" << lat << "\n";
+
+		j++;
+	}
 }
 
 
@@ -33,28 +65,33 @@ ClientDataManager::~ClientDataManager()
 {
 }
 
-double ClientDataManager::getMaxHeight()
+float ClientDataManager::getMaxHeight()
 {
 	//Hauteur maximum du terrain ( en metre)
 	const char* maxHeightstr = xmlDoc->FirstChildElement("PAMDataset")->FirstChildElement("PAMRasterBand")->FirstChildElement("Histograms")->FirstChildElement("HistItem")->FirstChildElement("HistMax")->GetText();
 
 	//Cast en float de la hauteur max
-	double maxHeight = std::stod(maxHeightstr);
+	float maxHeight = std::stod(maxHeightstr);
 	return maxHeight;
 }
 
-double ClientDataManager::getMinHeight()
+float ClientDataManager::getMinHeight()
 {
 	//Hauteur minimum du terrain ( en metre)
 	const char* minHeightstr = xmlDoc->FirstChildElement("PAMDataset")->FirstChildElement("PAMRasterBand")->FirstChildElement("Histograms")->FirstChildElement("HistItem")->FirstChildElement("HistMin")->GetText();
 
 	//Cast en float de la hauteur min
-	double minHeight = std::stod(minHeightstr);
+	float minHeight = std::stod(minHeightstr);
 
 	return minHeight;
 }
 
-double * ClientDataManager::getWorldFileParameters()
+float * ClientDataManager::getWorldFileParameters()
 {
 	return worldFileParameters;
+}
+
+float ** ClientDataManager::getTreeData()
+{
+	return treeData;
 }

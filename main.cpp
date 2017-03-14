@@ -2,6 +2,7 @@
 #include <gl/glut.h> 
 #include <osgViewer/Viewer> 
 #include <osgText/Text> 
+#include <osg/TexGen> 
 #include <osg/ShapeDrawable>
 #include <osgDB/ReadFile>
 #include <osg/PositionAttitudeTransform>
@@ -11,8 +12,10 @@
 #include "tinyxml2.h"
 #include "terrainCreator.h"
 #include "clientDataManager.h"
+#include "CoordinateConverter.h"
+#include "Skybox.h"
+#include <iostream>
 
-#include "osgTerrain/TerrainTile"
 
 
 int main(void)
@@ -27,35 +30,126 @@ int main(void)
 	osg::Node* firstTree = NULL;
 	firstTree = osgDB::readNodeFile("trees_models/tree2/source/TreeTest01.obj");
 
-	osg::Geode* boxGeode = new osg::Geode;
-	osg::Box* box = new osg::Box(osg::Vec3(-68.0 * 2000, 51.05183854 * 2000, 900),3.0f);
-	osg::ShapeDrawable* sd = new osg::ShapeDrawable(box);
-	boxGeode->addDrawable(sd);
-
-	root->addChild(boxGeode);
-
-
-	//Declare transform,initialize with defaults.
-	osg::PositionAttitudeTransform* treeXForm = new osg::PositionAttitudeTransform();
-	treeXForm->addChild(firstTree);
-	root->addChild(treeXForm);
-
-	
-	treeXForm->setPosition(osg::Vec3(-136029, 102108, 800));
-
-	std::string heightMapFile = "client_data/smooth.tif";
-	std::string texMapFile = "client_data/terrain2.jpg";
 
 	//Class qui gere les donnes des differents fichier
 	ClientDataManager* clientDataManager = new ClientDataManager();
 
+	//Creation d'un convertisseur
+	CoordinateConverter* converter = new CoordinateConverter(clientDataManager->getWorldFileParameters(), clientDataManager->getMaxHeight(), clientDataManager->getMinHeight(),100.0);
+
+	//Declare transform,initialize with defaults.
+	osg::PositionAttitudeTransform* treeXForm = new osg::PositionAttitudeTransform();
+	treeXForm->addChild(firstTree);
+	//root->addChild(treeXForm);
+
+	
+	//treeXForm->setPosition(osg::Vec3(-136029, 102108, 800));
+
+	std::string heightMapFile = "client_data/real_height_map.tif";
+	std::string texMapFile = "client_data/terrain.jpg";
+
+
+
 	//Construction du modele 3d du terrain
-	osg::Geode* terrainModele = createHeightField(heightMapFile, texMapFile, clientDataManager->getMinHeight(),
-		clientDataManager->getMaxHeight(), clientDataManager->getWorldFileParameters());
+	osg::Geode* terrainModele = createTerrain(heightMapFile, texMapFile, clientDataManager->getMinHeight(),
+		clientDataManager->getMaxHeight(), clientDataManager->getWorldFileParameters(), converter);
 	
 	//On ajoute le terrain au noeud racine
 	root->addChild(terrainModele);
 
+	osg::Geode* boxGeode = new osg::Geode;
+	osg::Box* box = new osg::Box(osg::Vec3(0,0,0),200.0);
+
+	osg::ShapeDrawable* sd = new osg::ShapeDrawable(box);
+	boxGeode->addDrawable(sd);
+
+	//root->addChild(boxGeode);
+
+
+	//double ** treeData = clientDataManager->getTreeData();
+
+	//Recuperation des arbres
+	std::ifstream  data("C:/OpenSceneGraph/datasets/client_data/Arbres.csv");
+
+	std::string line;
+	osg::Image* heightMap = osgDB::readImageFile(heightMapFile);
+
+	int j = 0;
+
+	while (std::getline(data, line))
+	{
+		int k = 0;
+		std::stringstream  lineStream(line);
+		std::string        cell;
+
+		float lon, lat, vol;
+
+		while (std::getline(lineStream, cell, ','))
+		{
+			if (k == 0) {
+				lon = atof(cell.c_str());
+			}
+			else if (k == 1) {
+				lat = atof(cell.c_str());
+			}
+			else if (k == 5) {
+				vol = atof(cell.c_str());
+			}
+			k++;
+		}
+
+		if (j != 0) {
+
+		
+			//std::cout << "Longitude " << lon << " Latitude" << lat << "\n";
+			osg::PositionAttitudeTransform* boxXForm = new osg::PositionAttitudeTransform();
+			
+			
+			root->addChild(boxXForm);
+			boxXForm->addChild(firstTree);
+
+			osg::Vec2 pixelXY = converter->LonLatToPixel(osg::Vec2(lon, lat)) * 100;
+			
+			osg::Vec3 coord_XYZ = converter->pixelToXYZ(osg::Vec3(pixelXY, *heightMap->data((int)pixelXY.x(),(int)pixelXY.y())));
+		
+			
+
+			
+			boxXForm->setPivotPoint(firstTree->getBound().center() + osg::Vec3(0, 0, -10));
+			boxXForm->setPosition(coord_XYZ);
+			boxXForm->setScale(osg::Vec3(50 * vol, 50 * vol, 50 * vol));
+		}
+
+		j++;
+	}
+
+	//Skybox
+	osg::ref_ptr<osg::Geode> geode = new osg::Geode;
+	geode->addDrawable(new osg::ShapeDrawable(
+		new osg::Sphere(osg::Vec3(), terrainModele->getBound().radius())));
+	SkyBox* skybox = new SkyBox();
+	skybox->getOrCreateStateSet()->setTextureAttributeAndModes(
+		0, new osg::TexGen);
+	osg::Image* posX = osgDB::readImageFile("Cubemap_sky/dsleft.jpg");
+	osg::Image* negX = osgDB::readImageFile("Cubemap_sky/dsright.jpg");
+	osg::Image* posY = osgDB::readImageFile("Cubemap_sky/dsfront.jpg");
+	osg::Image* negY = osgDB::readImageFile("Cubemap_sky/dsback.jpg");
+	osg::Image* posZ = osgDB::readImageFile("Cubemap_sky/dstop.jpg");
+	osg::Image* negZ = osgDB::readImageFile("Cubemap_axis/negz.png");
+
+	if (!posX) {
+		std::cout << "Pas de x";
+	}
+
+	skybox->setEnvironmentMap(0, posX, negX, posY, negY, posZ, negZ);
+	skybox->addChild(geode.get());
+
+	root->addChild(skybox);
+
+	//viewer.getCamera()->setProjectionMatrixAsPerspective(30, 1, 1, 30000);
+	//viewer.getCamera()->setCullingMode(osg::CullSettings::FAR_PLANE_CULLING);
+	//viewer.getCamera()->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
+	
 	//The final step is to set up and enter a simulation loop.
 	viewer.setSceneData(root);
 
@@ -69,4 +163,3 @@ int main(void)
 	return 0;
 
 }
-

@@ -126,11 +126,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ClientDataManager.cpp" />
+    <ClCompile Include="CoordinateConverter.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="tinyxml2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ClientDataManager.h" />
+    <ClInclude Include="CoordinateConverter.h" />
+    <ClInclude Include="Skybox.h" />
     <ClInclude Include="terrainCreator.h" />
     <ClInclude Include="tinyxml2.h" />
   </ItemGroup>
