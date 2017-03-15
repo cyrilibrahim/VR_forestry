@@ -14,13 +14,13 @@ public:
 	//Hauteur minimum pour le terrain
 	float getMinHeight();
 	//Retourne les parametres du "World file"
-	float* getWorldFileParameters();
+	double* getWorldFileParameters();
 
 	float ** getTreeData();
 
 private:
 	tinyxml2::XMLDocument* xmlDoc;
-	float worldFileParameters[6];
+	double worldFileParameters[6];
 	float** treeData;
 };
 

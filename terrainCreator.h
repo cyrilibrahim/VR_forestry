@@ -17,7 +17,7 @@
 //Fichier pour créer le modèle 3D du terrain à partir de toutes les informations
 
 
-osg::Geode* createTerrain(std::string heightFile, std::string texFile, double heightMin, double heightMax, float* worldParameters, CoordinateConverter* converter) {
+osg::Geode* createTerrain(std::string heightFile, std::string texFile, double heightMin, double heightMax, double* worldParameters, CoordinateConverter* converter) {
 
 	osg::Image* heightMap = osgDB::readImageFile(heightFile);
 
@@ -37,14 +37,14 @@ osg::Geode* createTerrain(std::string heightFile, std::string texFile, double he
 	geode->addDrawable(terrainGeometry);
 
 	osg::Vec3Array* terrainVertices = new osg::Vec3Array;
-	osg::Vec2Array* texcoords = new osg::Vec2Array;
+	osg::Vec2dArray* texcoords = new osg::Vec2dArray;
 
 	//On ajoute les sommets
 	for (int r = 0; r < imageHeight; r++ ) {
 		for (int c = 0; c < imageWidth; c++) {
 			osg::Vec3 XYZ = converter->pixelToXYZ(osg::Vec3(c, r, *heightMap->data(c, r)));
 			terrainVertices->push_back(XYZ);
-			texcoords->push_back(osg::Vec2( 1.0f - ((float) c / imageWidth), 1.0f - ((float) r / imageHeight)) * 40);
+			texcoords->push_back(osg::Vec2( 1.0 - ((double) c / imageWidth), 1.0 - ((double) r / imageHeight)) * 40);
 		}
 	}
 

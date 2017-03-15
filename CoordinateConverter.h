@@ -6,9 +6,9 @@
 class CoordinateConverter
 {
 public:
-	CoordinateConverter(float* worldParams, float maxH, float minH, float heightScale);
+	CoordinateConverter(double* worldParams, float maxH, float minH, float heightScale);
 	~CoordinateConverter();
-	float pixelToHeightMeters(int pixelValue);
+	double pixelToHeightMeters(int pixelValue);
 	osg::Vec2 getLonLatFromPixel(osg::Vec2 pixelPos);
 	osg::Vec2 LonLatToPixel(osg::Vec2 lonLat);
 	osg::Vec3 pixelToLonLatAtt(osg::Vec3 lonLatAtt);
@@ -20,12 +20,12 @@ public:
 	}
 
 private:
-	float* worldParameters;
-	float maxHeight;
-	float minHeight;
-	static const float earth_radius;
-	float aspect_ratio;
-	float heightScale;
+	double* worldParameters;
+	double maxHeight;
+	double minHeight;
+	static const double earth_radius;
+	double aspect_ratio;
+	double heightScale;
 	osg::EllipsoidModel osgConverter;
 };
 

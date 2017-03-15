@@ -1,11 +1,11 @@
 #include "CoordinateConverter.h"
 
 //Constantes
-const float CoordinateConverter::earth_radius = 6371000;
+const double CoordinateConverter::earth_radius = 6371000;
 
 
 
-CoordinateConverter::CoordinateConverter(float * worldParams, float maxH, float minH, float heightScale)
+CoordinateConverter::CoordinateConverter(double * worldParams, float maxH, float minH, float heightScale)
 {
 	worldParameters = worldParams;
 	maxHeight = maxH;
@@ -20,9 +20,9 @@ CoordinateConverter::~CoordinateConverter()
 {
 }
 
-float CoordinateConverter::pixelToHeightMeters(int pixelValue)
+double CoordinateConverter::pixelToHeightMeters(int pixelValue)
 {
-	float normalized = minHeight + (maxHeight - minHeight) * (pixelValue) / 255;
+	double normalized = minHeight + (maxHeight - minHeight) * (pixelValue) / 255;
 	//Car unite de base cm
 	return normalized * heightScale;
 }
@@ -38,15 +38,15 @@ osg::Vec2 CoordinateConverter::getLonLatFromPixel(osg::Vec2 pixelPos)
 
 //Ne marche que sans rotation
 osg::Vec2 CoordinateConverter::LonLatToPixel(osg::Vec2 lonLat) {
-	float pixelX = (lonLat.x() - worldParameters[4]) / worldParameters[0];
-	float pixelY = (lonLat.y() - worldParameters[5]) / worldParameters[3];
+	double pixelX = (lonLat.x() - worldParameters[4]) / worldParameters[0];
+	double pixelY = (lonLat.y() - worldParameters[5]) / worldParameters[3];
 
 	return osg::Vec2(pixelX, pixelY);
 }
 
 osg::Vec3 CoordinateConverter::pixelToLonLatAtt(osg::Vec3 lonLatAtt)
 {
-	float altitude = pixelToHeightMeters(lonLatAtt.z());
+	double altitude = pixelToHeightMeters(lonLatAtt.z());
 	osg::Vec2 longLat = getLonLatFromPixel(osg::Vec2(lonLatAtt.x(), lonLatAtt.y()));
 	return osg::Vec3(longLat,altitude);
 }
@@ -57,13 +57,13 @@ osg::Vec3 CoordinateConverter::pixelToLonLatAtt(osg::Vec3 lonLatAtt)
 //http://stackoverflow.com/questions/16266809/convert-from-latitude-longitude-to-x-y
 osg::Vec2 CoordinateConverter::lonLatToXY(osg::Vec2 lonLatAtt)
 {
-	float lonInRad = osg::DegreesToRadians(lonLatAtt.x());
-	float latInRad = osg::DegreesToRadians(lonLatAtt.y());
+	double lonInRad = osg::DegreesToRadians(lonLatAtt.x());
+	double latInRad = osg::DegreesToRadians(lonLatAtt.y());
 
-	float ratio = cos(osg::DegreesToRadians(aspect_ratio));
+	double ratio = cos(osg::DegreesToRadians(aspect_ratio));
 
-	float x = earth_radius * lonInRad * ratio;
-	float y = earth_radius * latInRad;
+	double x = earth_radius * lonInRad * ratio;
+	double y = earth_radius * latInRad;
 
 	return osg::Vec2(x, y);
 }
@@ -75,19 +75,19 @@ osg::Vec3 CoordinateConverter::pixelToXYZ(osg::Vec3 pixel)
 	//Approximation
 	osg::Vec2 XY = lonLatToXY(osg::Vec2(lonLatAtt.x(), lonLatAtt.y()));
 	osg::Vec3 result(XY, lonLatAtt.z());
-	
+
 	//Real
 	//std::cout << result.x() << " " << result.y() << "\n";
 	//return lonLatAttToXYZ(lonLatAtt);
-	
+
 	return result;
 }
 
 //NON UTILISÉ
 osg::Vec3 CoordinateConverter::lonLatAttToXYZ(osg::Vec3 lonLatAtt)
 {
-	float lonInRad = osg::DegreesToRadians(lonLatAtt.x());
-	float latInRad = osg::DegreesToRadians(lonLatAtt.y());
+	double lonInRad = osg::DegreesToRadians(lonLatAtt.x());
+	double latInRad = osg::DegreesToRadians(lonLatAtt.y());
 
 	double x;
 	double y;
