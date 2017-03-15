@@ -10,7 +10,7 @@ DEPS := $(OBJS:.o=.d)
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
-LDFLAGS = -losg -losgUtil -losgGA -losgViewer -losgDB -lstdc++ -lGLU -lGL -lglut -lm -lOpenThreads
+LDFLAGS = -losg -losgUtil -losgGA -losgViewer -losgDB -lboost_system -lstdc++ -lpthread -lboost_thread -lGLU -lGL -lglut -lm -lOpenThreads
 CPPFLAGS ?= $(INC_FLAGS) -MMD -MP
 CXXFLAGS =
 

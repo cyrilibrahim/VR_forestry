@@ -1,4 +1,4 @@
-
+#include <boost/shared_ptr.hpp>
 #include <GL/glut.h>
 #include <osgViewer/Viewer>
 #include <osgText/Text>
@@ -15,8 +15,8 @@
 #include "terrainCreator.h"
 #include "ClientDataManager.h"
 #include "CoordinateConverter.h"
+#include "Server.h"
 #include "Skybox.h"
-#include <iostream>
 
 
 
@@ -161,8 +161,11 @@ int main(void)
 	viewer.setCameraManipulator(new osgGA::TerrainManipulator());
 	viewer.realize();
 
+	// Démarrage du serveur web
+	boost::shared_ptr<Server> server(listen("0.0.0.0", "9000"));
 	while (!viewer.done()) {
 		viewer.frame();
+		pollSocket();
 	}
 
 	return 0;
