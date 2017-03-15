@@ -18,7 +18,7 @@ ClientDataManager::ClientDataManager()
 	}
 
 	//Recuperation des parametres du "World File"
-	std::ifstream infile("client_data/Clip2-modif.wld");
+	std::ifstream infile("client_data/Clip2-origin.wld");
 
 	long double currentParameter;
 	int i = 0;

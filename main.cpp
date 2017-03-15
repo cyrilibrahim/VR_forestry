@@ -19,13 +19,8 @@
 #include "Skybox.h"
 
 
-
 int main(void)
 {
-
-	//Initialize the scene viewer
-	osgViewer::Viewer viewer;
-
 	//Root of the scene graph
 	osg::Group* root = new osg::Group();
 
@@ -37,24 +32,30 @@ int main(void)
 	ClientDataManager* clientDataManager = new ClientDataManager();
 
 	//Creation d'un convertisseur
-	CoordinateConverter* converter = new CoordinateConverter(clientDataManager->getWorldFileParameters(), clientDataManager->getMaxHeight(), clientDataManager->getMinHeight(),100.0);
+	CoordinateConverter* converter = new CoordinateConverter(
+			clientDataManager->getWorldFileParameters(),
+			clientDataManager->getMaxHeight(),
+			clientDataManager->getMinHeight(),
+			1.0);
 
 	//Declare transform,initialize with defaults.
 	osg::PositionAttitudeTransform* treeXForm = new osg::PositionAttitudeTransform();
 	treeXForm->addChild(firstTree);
 	//root->addChild(treeXForm);
 
-
 	//treeXForm->setPosition(osg::Vec3(-136029, 102108, 800));
 
 	std::string heightMapFile = "client_data/real_height_map.tif";
 	std::string texMapFile = "client_data/terrain.jpg";
 
-
-
 	//Construction du modele 3d du terrain
-	osg::Geode* terrainModele = createTerrain(heightMapFile, texMapFile, clientDataManager->getMinHeight(),
-		clientDataManager->getMaxHeight(), clientDataManager->getWorldFileParameters(), converter);
+	osg::Geode* terrainModele = createTerrain(
+			heightMapFile,
+			texMapFile,
+			clientDataManager->getMinHeight(),
+			clientDataManager->getMaxHeight(),
+			clientDataManager->getWorldFileParameters(),
+			converter);
 
 	//On ajoute le terrain au noeud racine
 	root->addChild(terrainModele);
@@ -68,8 +69,6 @@ int main(void)
 			new osg::PolygonMode(osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::LINE));
 
 	//root->addChild(boxGeode);
-
-
 	//double ** treeData = clientDataManager->getTreeData();
 
 	//Recuperation des arbres
@@ -86,55 +85,48 @@ int main(void)
 		std::stringstream  lineStream(line);
 		std::string        cell;
 
-		double lon, lat, vol;
+		double lon, lat, height, vol;
 
 		while (std::getline(lineStream, cell, ','))
 		{
-			if (k == 0) {
+			if (k == 0)
 				lon = atof(cell.c_str());
-			}
-			else if (k == 1) {
+			else if (k == 1)
 				lat = atof(cell.c_str());
-			}
-			else if (k == 5) {
+			else if (k == 4)
+				height = atof(cell.c_str());
+			else if (k == 5)
 				vol = atof(cell.c_str());
-			}
 			k++;
 		}
 
 		if (j != 0) {
-
-
 			//std::cout << "Longitude " << lon << " Latitude" << lat << "\n";
 			osg::PositionAttitudeTransform* boxXForm = new osg::PositionAttitudeTransform();
-
 
 			root->addChild(boxXForm);
 			boxXForm->addChild(firstTree);
 			//boxXForm->addChild(boxGeode);
 
-			osg::Vec2 pixelXY = converter->LonLatToPixel(osg::Vec2(lon, lat)) * 100;
+			osg::Vec2 pixelXY = converter->LonLatToPixel(osg::Vec2(lon, lat));
 
-			osg::Vec3 coord_XYZ = converter->pixelToXYZ(osg::Vec3(pixelXY, *heightMap->data((int)pixelXY.x(),(int)pixelXY.y())));
-
-
-
+			osg::Vec3 coord_XYZ = converter->pixelToXYZ(
+					osg::Vec3(pixelXY, *heightMap->data((int)pixelXY.x(), (int)pixelXY.y())));
 
 			//boxXForm->setPivotPoint(firstTree->getBound().center() + osg::Vec3(0, 0, 0));
 			boxXForm->setPosition(coord_XYZ);
-			//boxXForm->setScale(osg::Vec3(50 * vol, 50 * vol, 50 * vol));
+			// Hauteur du birch_13 : 33.22m, mais l'unité du mesh n'est pas le mètre :/
+			boxXForm->setScale(osg::Vec3(1,1,1) * height / 33.22 * 0.02);
 		}
-
 		j++;
 	}
 
 	//Skybox
 	osg::ref_ptr<osg::Geode> geode = new osg::Geode;
 	geode->addDrawable(new osg::ShapeDrawable(
-		new osg::Sphere(osg::Vec3(), terrainModele->getBound().radius())));
+			new osg::Sphere(osg::Vec3(), terrainModele->getBound().radius())));
 	SkyBox* skybox = new SkyBox();
-	skybox->getOrCreateStateSet()->setTextureAttributeAndModes(
-		0, new osg::TexGen);
+	skybox->getOrCreateStateSet()->setTextureAttributeAndModes(0, new osg::TexGen);
 	osg::Image* posX = osgDB::readImageFile("Cubemap_sky/dsleft.jpg");
 	osg::Image* negX = osgDB::readImageFile("Cubemap_sky/dsright.jpg");
 	osg::Image* posY = osgDB::readImageFile("Cubemap_sky/dsfront.jpg");
@@ -142,14 +134,17 @@ int main(void)
 	osg::Image* posZ = osgDB::readImageFile("Cubemap_sky/dstop.jpg");
 	osg::Image* negZ = osgDB::readImageFile("Cubemap_axis/negz.png");
 
-	if (!posX) {
-		std::cout << "Pas de x";
+	if (!(posX && negX && posY && negY && posZ && negZ)) {
+		std::cout << "Texture(s) de skybox manquante(s)" << std::endl;
 	}
 
 	skybox->setEnvironmentMap(0, posX, negX, posY, negY, posZ, negZ);
 	skybox->addChild(geode.get());
 
 	root->addChild(skybox);
+
+	//Initialize the scene viewer
+	osgViewer::Viewer viewer;
 
 	viewer.getCamera()->setProjectionMatrixAsPerspective(30, 1, 1, 300000);
 	// viewer.getCamera()->setCullingMode(osg::CullSettings::FAR_PLANE_CULLING);
@@ -163,11 +158,12 @@ int main(void)
 
 	// Démarrage du serveur web
 	boost::shared_ptr<Server> server(listen("0.0.0.0", "9000"));
+
+	// Boucle d'affichage
 	while (!viewer.done()) {
 		viewer.frame();
 		pollSocket();
 	}
 
 	return 0;
-
 }

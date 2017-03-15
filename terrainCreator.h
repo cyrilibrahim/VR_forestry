@@ -43,6 +43,7 @@ osg::Geode* createTerrain(std::string heightFile, std::string texFile, double he
 	for (int r = 0; r < imageHeight; r++ ) {
 		for (int c = 0; c < imageWidth; c++) {
 			osg::Vec3 XYZ = converter->pixelToXYZ(osg::Vec3(c, r, *heightMap->data(c, r)));
+			std::cout << XYZ.x() << "|" << XYZ.y() << "|" << XYZ.z() << std::endl;
 			terrainVertices->push_back(XYZ);
 			texcoords->push_back(osg::Vec2( 1.0 - ((double) c / imageWidth), 1.0 - ((double) r / imageHeight)) * 40);
 		}

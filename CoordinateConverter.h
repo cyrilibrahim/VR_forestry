@@ -26,6 +26,7 @@ private:
 	static const double earth_radius;
 	double aspect_ratio;
 	double heightScale;
+	osg::Vec3 origin;
 	osg::EllipsoidModel osgConverter;
 };
 

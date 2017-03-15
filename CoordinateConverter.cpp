@@ -11,9 +11,13 @@ CoordinateConverter::CoordinateConverter(double * worldParams, float maxH, float
 	maxHeight = maxH;
 	minHeight = minH;
 	this->heightScale = heightScale;
-	//
-	aspect_ratio = (worldParameters[0] * 0 + worldParameters[2] * 0 + worldParameters[4] +
-		worldParameters[0] * 512 + worldParameters[2] *0 + worldParameters[4]) / 2;
+
+	aspect_ratio = cos(osg::DegreesToRadians(worldParameters[5] + worldParameters[3] * 256));
+
+	double x = earth_radius * osg::DegreesToRadians(worldParameters[4]) * aspect_ratio;
+	double y = earth_radius * osg::DegreesToRadians(worldParameters[5]);
+	origin = osg::Vec3(x, y, 0.0);
+	std::cout << "Origin : " << origin.x() << "|" << origin.y() << std::endl;
 }
 
 CoordinateConverter::~CoordinateConverter()
@@ -60,12 +64,10 @@ osg::Vec2 CoordinateConverter::lonLatToXY(osg::Vec2 lonLatAtt)
 	double lonInRad = osg::DegreesToRadians(lonLatAtt.x());
 	double latInRad = osg::DegreesToRadians(lonLatAtt.y());
 
-	double ratio = cos(osg::DegreesToRadians(aspect_ratio));
-
-	double x = earth_radius * lonInRad * ratio;
+	double x = earth_radius * lonInRad * aspect_ratio;
 	double y = earth_radius * latInRad;
 
-	return osg::Vec2(x, y);
+	return osg::Vec2(x, y) - osg::Vec2(origin.x(), origin.y());
 }
 
 osg::Vec3 CoordinateConverter::pixelToXYZ(osg::Vec3 pixel)
@@ -84,20 +86,18 @@ osg::Vec3 CoordinateConverter::pixelToXYZ(osg::Vec3 pixel)
 }
 
 //NON UTILISÉ
-osg::Vec3 CoordinateConverter::lonLatAttToXYZ(osg::Vec3 lonLatAtt)
-{
-	double lonInRad = osg::DegreesToRadians(lonLatAtt.x());
-	double latInRad = osg::DegreesToRadians(lonLatAtt.y());
-
-	double x;
-	double y;
-	double z;
-
-	std::cout << lonLatAtt.z() << "\n";
-
-	osgConverter.convertLatLongHeightToXYZ(latInRad, lonInRad, 0, x, y, z);
-
-
-
-	return osg::Vec3(x, y, z);
-}
+// osg::Vec3 CoordinateConverter::lonLatAttToXYZ(osg::Vec3 lonLatAtt)
+// {
+// 	double lonInRad = osg::DegreesToRadians(lonLatAtt.x());
+// 	double latInRad = osg::DegreesToRadians(lonLatAtt.y());
+//
+// 	double x;
+// 	double y;
+// 	double z;
+//
+// 	std::cout << lonLatAtt.z() << "\n";
+//
+// 	osgConverter.convertLatLongHeightToXYZ(latInRad, lonInRad, 0, x, y, z);
+//
+// 	return osg::Vec3(x, y, z);
+// }
