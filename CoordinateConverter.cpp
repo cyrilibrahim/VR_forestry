@@ -56,6 +56,17 @@ osg::Vec3 CoordinateConverter::pixelToLonLatAtt(osg::Vec3 lonLatAtt)
 }
 
 
+osg::Vec3 CoordinateConverter::getMapCenter(osg::Image * heightMap)
+{
+	int imageHeight = heightMap->t();
+	int imageWidth = heightMap->s();
+	osg::Vec3 mapCenter = osg::Vec3(imageWidth / 2, imageWidth / 2, *heightMap->data(imageWidth / 2, imageWidth / 2));
+	return pixelToXYZ(mapCenter);
+}
+
+
+
+
 
 //Approximation (fait la deformation necessaire)
 //http://stackoverflow.com/questions/16266809/convert-from-latitude-longitude-to-x-y
@@ -84,6 +95,7 @@ osg::Vec3 CoordinateConverter::pixelToXYZ(osg::Vec3 pixel)
 
 	return result;
 }
+
 
 //NON UTILISÉ
 // osg::Vec3 CoordinateConverter::lonLatAttToXYZ(osg::Vec3 lonLatAtt)

@@ -13,6 +13,7 @@ public:
 	osg::Vec2 LonLatToPixel(osg::Vec2 lonLat);
 	osg::Vec3 pixelToLonLatAtt(osg::Vec3 lonLatAtt);
 	osg::Vec3 lonLatAttToXYZ(osg::Vec3 lonLatAtt);
+	osg::Vec3 getMapCenter(osg::Image* heightMap);
 	osg::Vec2 lonLatToXY(osg::Vec2 lonLat);
 	osg::Vec3 pixelToXYZ(osg::Vec3 pixel);
 	double meterToFeet(double meter) {

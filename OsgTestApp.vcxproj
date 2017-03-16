@@ -127,16 +127,21 @@
   <ItemGroup>
     <ClCompile Include="ClientDataManager.cpp" />
     <ClCompile Include="CoordinateConverter.cpp" />
+    <ClCompile Include="CustomEventHandler.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="tinyxml2.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\VR_forestry-master\TruckDataType.h" />
     <ClInclude Include="ClientDataManager.h" />
     <ClInclude Include="CoordinateConverter.h" />
+    <ClInclude Include="CustomEventHandler.h" />
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="terrainCreator.h" />
     <ClInclude Include="tinyxml2.h" />
+    <ClInclude Include="truckInputDeviceStateType.h" />
+    <ClInclude Include="updateTruckPosRotCallback.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

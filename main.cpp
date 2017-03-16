@@ -1,4 +1,4 @@
-#include <boost/shared_ptr.hpp>
+//#include <boost/shared_ptr.hpp>
 #include <GL/glut.h>
 #include <iostream>
 #include <osg/BlendFunc>
@@ -25,33 +25,33 @@
 #include "CoordinateConverter.h"
 #include "Server.h"
 #include "Skybox.h"
-
+#include "truckInputDeviceStateType.h"
+#include "CustomEventHandler.h"
+#include "updateTruckPosRotCallback.h"
 
 int main(void)
 {
-	/*
+	
 	if (!SetCurrentDirectory("datasets"))
 	{
 		printf("SetCurrentDirectory failed (%d)\n", GetLastError());
 		//return;
 	}
-	*/
+
+	//Initialize the scene viewer
+	osgViewer::Viewer viewer;
 
 	//Root of the scene graph
 	osg::Group* root = new osg::Group();
 
-
+	//Ajout des modeles des arbres
 	osg::Node* firstTree = osgDB::readNodeFile("trees_models/tree_birch_osg/birch_13m.obj");
 	osg::Node* secondTree = osgDB::readNodeFile("trees_models/sapin/fir.obj");
 	osg::Node* thirdTree = osgDB::readNodeFile("trees_models/tree_birch_osg/birch_13m_autmn.obj");
+	//Chargement du model du camion
+	osg::Node* truckModel = osgDB::readNodeFile("models/t72-tank/t72-tank_des.flt");
 
-	/*
-	osg::StateSet* stateSet = new osg::StateSet();
-	stateSet->setMode(GL_BLEND, osg::StateAttribute::ON);
-	stateSet->setAttributeAndModes(blendFunc, osg::StateAttribute::ON);
-	//stateSet->setAttributeAndModes(blendFunc2, osg::StateAttribute::ON);
-	firstTree->setStateSet(stateSet);
-	*/
+
 
 	//Class qui gere les donnes des differents fichier
 	ClientDataManager* clientDataManager = new ClientDataManager();
@@ -176,6 +176,30 @@ int main(void)
 		j++;
 	}
 
+	//Ajout du camion
+	osg::PositionAttitudeTransform* truckXForm = new osg::PositionAttitudeTransform();
+	truckXForm->setPosition(osg::Vec3(0, 0, 0));
+	root->addChild(truckXForm);
+	truckXForm->addChild(truckModel);
+
+	//on le met a la position du dernier arbre
+	truckXForm->setPosition(converter->getMapCenter(heightMap));
+	truckXForm->setScale(osg::Vec3(0.7f, 0.7f, 0.7f));
+	//Declare instance of class to record state of keyboard
+	truckInputDeviceStateType* tIDevState = new truckInputDeviceStateType;
+
+	// Set up the truck update callback
+	//  pass the constructor a pointer to our truck input device state
+	//  that we declared above.
+	truckXForm->setUpdateCallback(new updateTruckPosCallback(tIDevState));
+
+	// The constructor for our event handler also gets a pointer to
+	//   our truck input device state instance
+	CustomEventHandler* myEventHandler = new CustomEventHandler(tIDevState);
+
+	// Add our event handler to the list
+	viewer.addEventHandler(myEventHandler);
+
 	//Skybox
 	osg::ref_ptr<osg::Geode> geode = new osg::Geode;
 	geode->addDrawable(new osg::ShapeDrawable(
@@ -198,26 +222,26 @@ int main(void)
 
 	root->addChild(skybox);
 
-	//Initialize the scene viewer
-	osgViewer::Viewer viewer;
 
-	viewer.getCamera()->setProjectionMatrixAsPerspective(65, 1, 1, 3000);
+	viewer.getCamera()->setProjectionMatrixAsPerspective(65, 1, 0.1, 300);
 	viewer.getCamera()->setCullingMode(osg::CullSettings::FAR_PLANE_CULLING);
 	viewer.getCamera()->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
+
 
 	//The final step is to set up and enter a simulation loop.
 	viewer.setSceneData(root);
 
-	viewer.setCameraManipulator(new osgGA::TerrainManipulator());
+	//viewer.setCameraManipulator(new osgGA::TerrainManipulator());
 	viewer.realize();
 	viewer.getCamera()->getView()->setLightingMode(osg::View::NO_LIGHT); //works
 	// Démarrage du serveur web
-	boost::shared_ptr<Server> server(listen("0.0.0.0", "9000"));
+	//boost::shared_ptr<Server> server(listen("0.0.0.0", "9000"));
 
 	// Boucle d'affichage
 	while (!viewer.done()) {
 		viewer.frame();
-		pollSocket();
+		viewer.getCamera()->setViewMatrixAsLookAt(truckXForm->getPosition() + osg::Vec3(0, -5, 2), truckXForm->getPosition(), osg::Vec3(0, 0, 1));
+		//pollSocket();
 	}
 
 	return 0;

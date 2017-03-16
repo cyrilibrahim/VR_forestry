@@ -1,9 +1,10 @@
 ﻿C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V140\Microsoft.CppBuild.targets(392,5): warning MSB8028: The intermediate directory (x64\Release\) contains files shared from another project (OpenSceneGraphBase.vcxproj, OsgTestApp.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+  CustomEventHandler.cpp
   main.cpp
   Génération de code en cours
-  2 of 846 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
+  31 of 947 functions ( 3.3%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+    18 functions had inline decision re-evaluated but remain unchanged
   Fin de la génération du code
-  OsgTestApp.vcxproj -> C:\Users\Bureau\Desktop\Réalité virtuel\projet\VR_forestry\x64\Release\forestry_VR.exe
-  OsgTestApp.vcxproj -> C:\Users\Bureau\Desktop\Réalité virtuel\projet\VR_forestry\x64\Release\forestry_VR.pdb (Full PDB)
+  OsgTestApp.vcxproj -> C:\Users\Bureau\Desktop\Réalité virtuel\projet\git temp proj\VR_forestry\x64\Release\forestry_VR.exe
+  OsgTestApp.vcxproj -> C:\Users\Bureau\Desktop\Réalité virtuel\projet\git temp proj\VR_forestry\x64\Release\forestry_VR.pdb (Full PDB)
