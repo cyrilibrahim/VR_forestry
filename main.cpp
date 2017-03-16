@@ -9,6 +9,9 @@
 #include <osg/ShapeDrawable>
 #include <osg/TexGen>
 #include <osgDB/ReadFile>
+#include <osgGA/DriveManipulator>
+#include <osgGA/FirstPersonManipulator>
+#include <osgGA/FlightManipulator>
 #include <osgGA/TerrainManipulator>
 #include <osgGA/TrackballManipulator>
 #include <osgText/Text>
@@ -121,8 +124,8 @@ int main(void)
 		if (j != 0) {
 			osg::Vec2 treeXY = converter->lonLatToXY(osg::Vec2(lon, lat));
 			osg::PositionAttitudeTransform* treeXForm = new osg::PositionAttitudeTransform();
-			root->addChild(treeXForm);
 
+			// Ray-tracing pour planter les arbres
 			osg::LineSegment* treeHeightRay = new osg::LineSegment();
 			treeHeightRay->set(
 				osg::Vec3(treeXY, 9999) ,
@@ -139,23 +142,16 @@ int main(void)
 			if (!heightHits.empty()) {
 				treeHeightResults = heightHits.front();
 				treePos = treeHeightResults.getWorldIntersectPoint();
+			} else {
+				// Arbre en dehors du terrain
+				continue;
 			}
+			root->addChild(treeXForm);
 
-			//std::cout << "Longitude " << lon << " Latitude" << lat << "\n";
-
-			//boxXForm->addChild(boxGeode);
-
-
-			//osg::Vec3 coord_XYZ = converter->pixelToXYZ(
-			//		osg::Vec3(pixelXY, *heightMap->data((int)pixelXY.x(), (int)pixelXY.y())));
-
-			//boxXForm->setPivotPoint(firstTree->getBound().center() + osg::Vec3(0, 0, 0));
 			treeXForm->setPosition(treePos);
 			//Random rotation
 			double randRotation = rand() % (360 - 1 + 1) + 1;
 			treeXForm->setAttitude(osg::Quat(randRotation, osg::Vec3(0, 0, 1)));
-
-
 
 			if (espece == 'C') {
 				treeXForm->addChild(secondTree);
@@ -192,14 +188,7 @@ int main(void)
 	osg::Image* negY = osgDB::readImageFile("Cubemap_sky/dsback.jpg");
 	osg::Image* posZ = osgDB::readImageFile("Cubemap_sky/dstop.jpg");
 	osg::Image* negZ = osgDB::readImageFile("Cubemap_sky/dstop.jpg");
-	/*
-	osg::Image* posX = osgDB::readImageFile("Cubemap_axis/posX.png");
-	osg::Image* negX = osgDB::readImageFile("Cubemap_axis/negX.png");
-	osg::Image* posY = osgDB::readImageFile("Cubemap_axis/posY.png");
-	osg::Image* negY = osgDB::readImageFile("Cubemap_axis/negY.png");
-	osg::Image* posZ = osgDB::readImageFile("Cubemap_axis/posZ.png");
-	osg::Image* negZ = osgDB::readImageFile("Cubemap_axis/negZ.png");
-	*/
+
 	if (!(posX && negX && posY && negY && posZ && negZ)) {
 		std::cout << "Texture(s) de skybox manquante(s)" << std::endl;
 	}
@@ -212,7 +201,7 @@ int main(void)
 	//Initialize the scene viewer
 	osgViewer::Viewer viewer;
 
-	viewer.getCamera()->setProjectionMatrixAsPerspective(65, 1, 1, 300);
+	viewer.getCamera()->setProjectionMatrixAsPerspective(65, 1, 1, 3000);
 	viewer.getCamera()->setCullingMode(osg::CullSettings::FAR_PLANE_CULLING);
 	viewer.getCamera()->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
 
