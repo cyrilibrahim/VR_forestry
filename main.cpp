@@ -1,23 +1,28 @@
 #include <boost/shared_ptr.hpp>
 #include <GL/glut.h>
-#include <osgViewer/Viewer>
-#include <osgText/Text>
-#include <osg/PolygonMode>
-#include <osg/TexGen>
-#include <osg/ShapeDrawable>
-#include <osgDB/ReadFile>
-#include <osg/PositionAttitudeTransform>
-#include <osgGA/TrackballManipulator>
-#include <osgGA/TerrainManipulator>
-#include <string>
 #include <iostream>
+#include <osg/BlendFunc>
+#include <osg/Geometry>
+#include <osg/LineSegment>
+#include <osg/PolygonMode>
+#include <osg/PositionAttitudeTransform>
+#include <osg/ShapeDrawable>
+#include <osg/TexGen>
+#include <osgDB/ReadFile>
+#include <osgGA/TerrainManipulator>
+#include <osgGA/TrackballManipulator>
+#include <osgText/Text>
+#include <osgUtil/IntersectVisitor>
+#include <osgViewer/Viewer>
+#include <string>
+
 #include "tinyxml2.h"
 #include "terrainCreator.h"
 #include "ClientDataManager.h"
 #include "CoordinateConverter.h"
 #include "Server.h"
 #include "Skybox.h"
-#include <osg/BlendFunc>
+
 
 int main(void)
 {
@@ -27,7 +32,7 @@ int main(void)
 		printf("SetCurrentDirectory failed (%d)\n", GetLastError());
 		//return;
 	}
-	*/ 
+	*/
 
 	//Root of the scene graph
 	osg::Group* root = new osg::Group();
@@ -105,7 +110,7 @@ int main(void)
 			else if (k == 1)
 				lat = atof(cell.c_str());
 			else if (k == 2)
-				 espece = cell[0];
+				espece = cell[0];
 			else if (k == 4)
 				height = atof(cell.c_str());
 			else if (k == 5)
@@ -114,48 +119,63 @@ int main(void)
 		}
 
 		if (j != 0) {
+			osg::Vec2 treeXY = converter->lonLatToXY(osg::Vec2(lon, lat));
+			osg::PositionAttitudeTransform* treeXForm = new osg::PositionAttitudeTransform();
+			root->addChild(treeXForm);
+
+			osg::LineSegment* treeHeightRay = new osg::LineSegment();
+			treeHeightRay->set(
+				osg::Vec3(treeXY, 9999) ,
+				osg::Vec3(treeXY, -999) );
+
+			osgUtil::IntersectVisitor treeElevationVisitor;
+			treeElevationVisitor.addLineSegment(treeHeightRay);
+			terrainModele->accept(treeElevationVisitor);
+
+			osgUtil::IntersectVisitor::HitList heightHits;
+			heightHits = treeElevationVisitor.getHitList(treeHeightRay);
+			osgUtil::Hit treeHeightResults;
+			osg::Vec3d treePos(treeXY, 800.);
+			if (!heightHits.empty()) {
+				treeHeightResults = heightHits.front();
+				treePos = treeHeightResults.getWorldIntersectPoint();
+			}
+
 			//std::cout << "Longitude " << lon << " Latitude" << lat << "\n";
-			osg::PositionAttitudeTransform* boxXForm = new osg::PositionAttitudeTransform();
-			root->addChild(boxXForm);
 
 			//boxXForm->addChild(boxGeode);
 
-			osg::Vec2 pixelXY = converter->LonLatToPixel(osg::Vec2(lon, lat));
 
-			osg::Vec3 coord_XYZ = converter->pixelToXYZ(
-					osg::Vec3(pixelXY, *heightMap->data((int)pixelXY.x(), (int)pixelXY.y())));
+			//osg::Vec3 coord_XYZ = converter->pixelToXYZ(
+			//		osg::Vec3(pixelXY, *heightMap->data((int)pixelXY.x(), (int)pixelXY.y())));
 
 			//boxXForm->setPivotPoint(firstTree->getBound().center() + osg::Vec3(0, 0, 0));
-			boxXForm->setPosition(coord_XYZ);
-			//Random rotation 
+			treeXForm->setPosition(treePos);
+			//Random rotation
 			double randRotation = rand() % (360 - 1 + 1) + 1;
-			boxXForm->setAttitude(osg::Quat(randRotation, osg::Vec3(0, 0, 1)));
-			
+			treeXForm->setAttitude(osg::Quat(randRotation, osg::Vec3(0, 0, 1)));
+
 
 
 			if (espece == 'C') {
-				boxXForm->addChild(secondTree);
-				boxXForm->setScale(osg::Vec3(0.15, 0.15, 0.15) * height);
+				treeXForm->addChild(secondTree);
+				treeXForm->setScale(osg::Vec3(0.15, 0.15, 0.15) * height);
 			}
 			else if(espece == 'F') {
 				//Rand between 1 and 2
 				int randTree = rand() % (2 - 1 + 1) + 1;
 				//Birch
 				if (randTree == 1) {
-					boxXForm->addChild(firstTree);
+					treeXForm->addChild(firstTree);
 					// Hauteur du birch_13 : 33.22m, mais l'unité du mesh n'est pas le mètre :/
-					boxXForm->setScale(osg::Vec3(1, 1, 1) * height / 33.22 * 0.02);
+					treeXForm->setScale(osg::Vec3(1, 1, 1) * height / 33.22 * 0.02);
 				}
 				//Sapin
 				else if (randTree == 2) {
-					boxXForm->addChild(thirdTree);
-					boxXForm->setScale(osg::Vec3(1, 1, 1) * height / 33.22 * 0.02);
+					treeXForm->addChild(thirdTree);
+					treeXForm->setScale(osg::Vec3(1, 1, 1) * height / 33.22 * 0.02);
 				}
 			}
-
-
-
-
 		}
 		j++;
 	}

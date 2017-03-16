@@ -54,7 +54,7 @@ osg::Geode* createTerrain(std::string heightFile, std::string texFile, double he
 
 	//On creer les face
 	for (int r = 0; r  < (imageHeight - 1); r++) {
-		for (int c = 0; c < ((imageWidth - 1)); c++) {
+		for (int c = 0; c < (imageWidth - 1); c++) {
 
 
 			osg::DrawElementsUInt* faceOne = new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
