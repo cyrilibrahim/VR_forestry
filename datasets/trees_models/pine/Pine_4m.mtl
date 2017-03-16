@@ -1,0 +1,41 @@
+# 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
+# File Created: 09.06.2010 23:45:07
+newmtl trunk
+	Ns 10.000000
+	Ni 1.500000
+	d 0.000000
+	Tr 1.000000
+	Tf 1.000000 1.000000 1.000000 
+	illum 2
+	Ka 0.588000 0.588000 0.588000
+	Kd 0.588000 0.588000 0.588000
+	Ks 0.000000 0.000000 0.000000
+	Ke 0.000000 0.000000 0.000000
+	map_Ka pine-leaf-diff.dds
+	map_Kd pine-leaf-diff.dds
+newmtl leaf
+	Ns 10.000000
+	Ni 1.500000
+	d 0.000000
+	Tr 1.000000
+	Tf 1.000000 1.000000 1.000000 
+	illum 2
+	Ka 0.588000 0.588000 0.588000
+	Kd 0.588000 0.588000 0.588000
+	Ks 0.000000 0.000000 0.000000
+	Ke 0.000000 0.000000 0.000000
+	map_Ka pine-leaf-diff.dds
+	map_Kd pine-leaf-diff.dds
+newmtl other
+	Ns 10.000000
+	Ni 1.500000
+	d 0.000000
+	Tr 1.000000
+	Tf 1.000000 1.000000 1.000000 
+	illum 2
+	Ka 0.588000 0.588000 0.588000
+	Kd 0.588000 0.588000 0.588000
+	Ks 0.000000 0.000000 0.000000
+	Ke 0.000000 0.000000 0.000000
+	map_Ka pine-leaf-diff.dds
+	map_Kd pine-leaf-diff.dds

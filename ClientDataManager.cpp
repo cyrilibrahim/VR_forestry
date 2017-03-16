@@ -86,7 +86,7 @@ float ClientDataManager::getMinHeight()
 	return minHeight;
 }
 
-double * ClientDataManager::getWorldFileParameters()
+double* ClientDataManager::getWorldFileParameters()
 {
 	return worldFileParameters;
 }

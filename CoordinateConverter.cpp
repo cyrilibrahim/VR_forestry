@@ -5,7 +5,7 @@ const double CoordinateConverter::earth_radius = 6371000;
 
 
 
-CoordinateConverter::CoordinateConverter(double * worldParams, float maxH, float minH, float heightScale)
+CoordinateConverter::CoordinateConverter(double* worldParams, float maxH, float minH, float heightScale)
 {
 	worldParameters = worldParams;
 	maxHeight = maxH;
@@ -17,7 +17,7 @@ CoordinateConverter::CoordinateConverter(double * worldParams, float maxH, float
 	double x = earth_radius * osg::DegreesToRadians(worldParameters[4]) * aspect_ratio;
 	double y = earth_radius * osg::DegreesToRadians(worldParameters[5]);
 	origin = osg::Vec3(x, y, 0.0);
-	std::cout << "Origin : " << origin.x() << "|" << origin.y() << std::endl;
+	//std::cout << "Origin : " << origin.x() << "|" << origin.y() << std::endl;
 }
 
 CoordinateConverter::~CoordinateConverter()
