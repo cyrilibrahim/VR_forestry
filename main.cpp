@@ -31,6 +31,14 @@
 
 int main(void)
 {
+	//Entre dans le dossier pour windows seulement
+	#ifdef _WIN32
+	if (!SetCurrentDirectory("datasets"))
+	{
+		printf("SetCurrentDirectory failed (%d)\n", GetLastError());
+	}
+	#endif
+
 	//Initialize the scene viewer
 	osgViewer::Viewer viewer;
 
