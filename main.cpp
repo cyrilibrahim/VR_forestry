@@ -41,6 +41,11 @@ int main(void)
 	//Initialize the scene viewer
 	osgViewer::Viewer viewer;
 
+	//0: vue du camion de haut
+	//1: Monde qui tourne autour du terrain
+	//2: Vue du camion a la premiere personne
+	int pointOfViewChoice = 2;
+
 	//Root of the scene graph
 	osg::Group* root = new osg::Group();
 
@@ -231,7 +236,12 @@ int main(void)
 	//The final step is to set up and enter a simulation loop.
 	viewer.setSceneData(root);
 
-	//viewer.setCameraManipulator(new osgGA::TerrainManipulator());
+	//Camera monde qui tourne
+	if (pointOfViewChoice == 1) {
+		viewer.setCameraManipulator(new osgGA::TerrainManipulator());
+	}
+	
+
 	viewer.realize();
 	viewer.getCamera()->getView()->setLightingMode(osg::View::NO_LIGHT); //works
 	// Démarrage du serveur web
@@ -240,7 +250,16 @@ int main(void)
 	// Boucle d'affichage
 	while (!viewer.done()) {
 		viewer.frame();
-		viewer.getCamera()->setViewMatrixAsLookAt(truckXForm->getPosition() + osg::Vec3(0, -5, 2), truckXForm->getPosition(), osg::Vec3(0, 0, 1));
+
+		//3eme personne
+		if (pointOfViewChoice == 0) {
+			viewer.getCamera()->setViewMatrixAsLookAt(truckXForm->getPosition() + osg::Vec3(0, -5, 2), truckXForm->getPosition(), osg::Vec3(0, 0, 1));
+		}
+		//1 ere personne
+		else if(pointOfViewChoice == 2) {
+			viewer.getCamera()->setViewMatrixAsLookAt(truckXForm->getPosition() + osg::Vec3(0, 2, 2), truckXForm->getPosition() + osg::Vec3(0, 10,2), osg::Vec3(0, 0, 1));
+		}
+		
 		//pollSocket();
 	}
 
