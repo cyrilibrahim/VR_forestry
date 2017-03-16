@@ -3,7 +3,7 @@
 class truckInputDeviceStateType
 {
 public:
-	truckInputDeviceStateType::truckInputDeviceStateType() {
+	truckInputDeviceStateType() {
 		moveFwdRequest = false;
 		moveBackRequest = false;
 	}

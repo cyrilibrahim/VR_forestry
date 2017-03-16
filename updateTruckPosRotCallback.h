@@ -1,6 +1,6 @@
 #pragma once
 
-#include <gl/glut.h> 
+#include <GL/glut.h>
 #include <osg/PositionAttitudeTransform>
 #include "truckInputDeviceStateType.h"
 #include <iostream>

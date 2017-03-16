@@ -1,4 +1,4 @@
-/*#include <string>
+#include <string>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/asio.hpp>
@@ -23,4 +23,3 @@ class Server: public boost::enable_shared_from_this<Server> {
 
 boost::shared_ptr<Server> listen(std::string address, std::string port);
 void pollSocket();
-*/

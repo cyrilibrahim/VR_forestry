@@ -31,13 +31,6 @@
 
 int main(void)
 {
-	
-	if (!SetCurrentDirectory("datasets"))
-	{
-		printf("SetCurrentDirectory failed (%d)\n", GetLastError());
-		//return;
-	}
-
 	//Initialize the scene viewer
 	osgViewer::Viewer viewer;
 
@@ -229,7 +222,7 @@ int main(void)
 	if (pointOfViewChoice == 1) {
 		viewer.setCameraManipulator(new osgGA::TerrainManipulator());
 	}
-	
+
 
 	viewer.realize();
 	viewer.getCamera()->getView()->setLightingMode(osg::View::NO_LIGHT); //works
@@ -248,7 +241,7 @@ int main(void)
 		else if(pointOfViewChoice == 2) {
 			viewer.getCamera()->setViewMatrixAsLookAt(truckXForm->getPosition() + osg::Vec3(0, 2, 2), truckXForm->getPosition() + osg::Vec3(0, 10,2), osg::Vec3(0, 0, 1));
 		}
-		
+
 		//pollSocket();
 	}
 

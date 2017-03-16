@@ -1,5 +1,5 @@
 #pragma once
-#include <gl/glut.h> 
+#include <GL/glut.h>
 #include <iostream>
 #include <osgGA/GUIEventHandler>
 #include "truckInputDeviceStateType.h"
