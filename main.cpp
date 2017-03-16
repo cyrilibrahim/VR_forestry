@@ -44,7 +44,7 @@ int main(void)
 	//0: vue du camion de haut
 	//1: Monde qui tourne autour du terrain
 	//2: Vue du camion a la premiere personne
-	int pointOfViewChoice = 2;
+	int pointOfViewChoice = 0;
 
 	//Root of the scene graph
 	osg::Group* root = new osg::Group();
@@ -83,17 +83,6 @@ int main(void)
 
 	//On ajoute le terrain au noeud racine
 	root->addChild(terrainModele);
-
-	osg::Geode* boxGeode = new osg::Geode;
-	osg::Box* box = new osg::Box(osg::Vec3(0,0,0),2.0);
-
-	osg::ShapeDrawable* sd = new osg::ShapeDrawable(box);
-	boxGeode->addDrawable(sd);
-	boxGeode->getOrCreateStateSet()->setAttributeAndModes(
-			new osg::PolygonMode(osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::LINE));
-
-	//root->addChild(boxGeode);
-	//double ** treeData = clientDataManager->getTreeData();
 
 	//Recuperation des arbres
 	std::ifstream  data("client_data/Arbres.csv");
@@ -189,14 +178,14 @@ int main(void)
 
 	//on le met a la position du dernier arbre
 	truckXForm->setPosition(converter->getMapCenter(heightMap));
-	truckXForm->setScale(osg::Vec3(0.7f, 0.7f, 0.7f));
+	truckXForm->setScale(osg::Vec3(0.4f, 0.4f, 0.4f));
 	//Declare instance of class to record state of keyboard
 	truckInputDeviceStateType* tIDevState = new truckInputDeviceStateType;
 
 	// Set up the truck update callback
 	//  pass the constructor a pointer to our truck input device state
 	//  that we declared above.
-	truckXForm->setUpdateCallback(new updateTruckPosCallback(tIDevState));
+	truckXForm->setUpdateCallback(new updateTruckPosCallback(tIDevState,terrainModele));
 
 	// The constructor for our event handler also gets a pointer to
 	//   our truck input device state instance
@@ -253,7 +242,7 @@ int main(void)
 
 		//3eme personne
 		if (pointOfViewChoice == 0) {
-			viewer.getCamera()->setViewMatrixAsLookAt(truckXForm->getPosition() + osg::Vec3(0, -5, 2), truckXForm->getPosition(), osg::Vec3(0, 0, 1));
+			viewer.getCamera()->setViewMatrixAsLookAt(truckXForm->getPosition() + osg::Vec3(0, -3, 1), truckXForm->getPosition(), osg::Vec3(0, 0, 1));
 		}
 		//1 ere personne
 		else if(pointOfViewChoice == 2) {

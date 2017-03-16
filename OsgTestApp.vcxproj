@@ -133,7 +133,6 @@
     <ClCompile Include="tinyxml2.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\VR_forestry-master\TruckDataType.h" />
     <ClInclude Include="ClientDataManager.h" />
     <ClInclude Include="CoordinateConverter.h" />
     <ClInclude Include="CustomEventHandler.h" />

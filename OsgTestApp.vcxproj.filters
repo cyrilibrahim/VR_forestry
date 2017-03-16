@@ -50,9 +50,6 @@
     <ClInclude Include="Skybox.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\VR_forestry-master\TruckDataType.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
     <ClInclude Include="CustomEventHandler.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
