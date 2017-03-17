@@ -239,11 +239,11 @@ int main(void)
 
 	// Boucle d'affichage
 	while (!viewer.done()) {
-		viewer.frame();
-
 		//3eme personne
 		if (pointOfViewChoice == 0) {
-			viewer.getCamera()->setViewMatrixAsLookAt(truckXForm->getPosition() + osg::Vec3(0, -3, 1), truckXForm->getPosition(), osg::Vec3(0, 0, 1));
+			viewer.getCamera()->setViewMatrixAsLookAt(
+					truckXForm->getPosition() + truckXForm->getAttitude() * osg::Vec3(0, -3, 1),
+					truckXForm->getPosition(), osg::Vec3(0, 0, 1));
 		}
 		//1 ere personne
 		else if(pointOfViewChoice == 2) {
@@ -251,6 +251,7 @@ int main(void)
 		}
 
 		//pollSocket();
+		viewer.frame();
 	}
 
 	return 0;

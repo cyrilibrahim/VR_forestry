@@ -6,8 +6,12 @@ public:
 	truckInputDeviceStateType() {
 		moveFwdRequest = false;
 		moveBackRequest = false;
+		turnLeftRequest = false;
+		turnRightRequest = false;
 	}
 
 	bool moveFwdRequest;
 	bool moveBackRequest;
+	bool turnLeftRequest;
+	bool turnRightRequest;
 };

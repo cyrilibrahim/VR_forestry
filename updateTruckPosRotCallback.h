@@ -18,13 +18,17 @@ public:
 
 		//We have a transform node who contain the tank
 		osg::PositionAttitudeTransform* pat = dynamic_cast<osg::PositionAttitudeTransform*> (node);
+		osg::Quat rotIncr(0.01, osg::Vec3(0, 0, 1));
 		if (pat) {
-			if (truckInputDeviceState->moveFwdRequest) {
-				pat->setPosition(pat->getPosition() + osg::Vec3(0.0, 0.1, 0.0));
-			}
-			if (truckInputDeviceState->moveBackRequest) {
-				pat->setPosition(pat->getPosition() - osg::Vec3(0.0, 0.1, 0.0));
-			}
+			osg::Quat att(pat->getAttitude());
+			if (truckInputDeviceState->moveFwdRequest)
+				pat->setPosition(pat->getPosition() + att * osg::Vec3(0.0, 0.1, 0.0));
+			if (truckInputDeviceState->moveBackRequest)
+				pat->setPosition(pat->getPosition() - att * osg::Vec3(0.0, 0.1, 0.0));
+			if (truckInputDeviceState->turnLeftRequest)
+				pat->setAttitude(att * rotIncr);
+			if (truckInputDeviceState->turnRightRequest)
+				pat->setAttitude(att / rotIncr);
 		}
 
 		//Mettre a jour la hauteur du camion

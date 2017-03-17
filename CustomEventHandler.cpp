@@ -8,12 +8,24 @@ bool CustomEventHandler::handle(const osgGA::GUIEventAdapter & ea, osgGA::GUIAct
 	{
 		switch (ea.getKey()) {
 		case 'w':
+		case 'z':
 			truckInputDeviceState->moveFwdRequest = true;
 			return false;
 			break;
-		
+
 		case 's':
 			truckInputDeviceState->moveBackRequest = true;
+			return false;
+			break;
+
+		case 'q':
+		case 'a':
+			truckInputDeviceState->turnLeftRequest = true;
+			return false;
+			break;
+
+		case 'd':
+			truckInputDeviceState->turnRightRequest = true;
 			return false;
 			break;
 		}
@@ -22,12 +34,24 @@ bool CustomEventHandler::handle(const osgGA::GUIEventAdapter & ea, osgGA::GUIAct
 	{
 		switch (ea.getKey()) {
 		case 'w':
+		case 'z':
 			truckInputDeviceState->moveFwdRequest = false;
 			return false;
 			break;
-		
+
 		case 's':
 			truckInputDeviceState->moveBackRequest = false;
+			return false;
+			break;
+
+		case 'q':
+		case 'a':
+			truckInputDeviceState->turnLeftRequest = false;
+			return false;
+			break;
+
+		case 'd':
+			truckInputDeviceState->turnRightRequest = false;
 			return false;
 			break;
 		}
