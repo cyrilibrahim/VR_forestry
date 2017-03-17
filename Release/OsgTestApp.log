@@ -1,1 +1,0 @@
-﻿osg.lib(osg.dll) : fatal error LNK1112: type d'ordinateur module 'x64' en conflit avec le type d'ordinateur cible 'X86'
