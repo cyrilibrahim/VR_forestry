@@ -150,7 +150,7 @@ int main(void)
 
 			if (espece == 'C') {
 				treeXForm->addChild(secondTree);
-				treeXForm->setScale(osg::Vec3(0.15, 0.15, 0.15) * height);
+				treeXForm->setScale(osg::Vec3(0.2, 0.2, 0.2) * height);
 			}
 			else if(espece == 'F') {
 				//Rand between 1 and 2
@@ -186,7 +186,8 @@ int main(void)
 	// Set up the truck update callback
 	//  pass the constructor a pointer to our truck input device state
 	//  that we declared above.
-	truckXForm->setUpdateCallback(new updateTruckPosCallback(tIDevState,terrainModele));
+	updateTruckPosCallback* truckUpdater =  new updateTruckPosCallback(tIDevState, terrainModele);
+	truckXForm->setUpdateCallback(truckUpdater);
 
 	// The constructor for our event handler also gets a pointer to
 	//   our truck input device state instance
@@ -241,13 +242,23 @@ int main(void)
 	while (!viewer.done()) {
 		//3eme personne
 		if (pointOfViewChoice == 0) {
+
+			osg::Vec3 offsetZ(0, 0, 1);
 			viewer.getCamera()->setViewMatrixAsLookAt(
-					truckXForm->getPosition() + truckXForm->getAttitude() * osg::Vec3(0, -3, 1),
-					truckXForm->getPosition(), osg::Vec3(0, 0, 1));
+					truckXForm->getPosition() - truckUpdater->getTruckDirection() * 4 + offsetZ,
+					truckXForm->getPosition(),
+					osg::Vec3(0, 0, 1));
+
 		}
 		//1 ere personne
 		else if(pointOfViewChoice == 2) {
-			viewer.getCamera()->setViewMatrixAsLookAt(truckXForm->getPosition() + osg::Vec3(0, 2, 2), truckXForm->getPosition() + osg::Vec3(0, 10,2), osg::Vec3(0, 0, 1));
+
+			osg::Vec3 offsetZ(0, 0, 1);
+			viewer.getCamera()->setViewMatrixAsLookAt(
+				truckXForm->getPosition() + truckUpdater->getTruckDirection() + offsetZ,
+				truckXForm->getPosition() + truckUpdater->getTruckDirection()*2 + offsetZ,
+				osg::Vec3(0, 0, 1));
+
 		}
 
 		//pollSocket();
