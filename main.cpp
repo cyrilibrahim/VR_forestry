@@ -1,4 +1,4 @@
-//#include <boost/shared_ptr.hpp>
+#include <boost/shared_ptr.hpp>
 #include <GL/glut.h>
 #include <iostream>
 #include <osg/BlendFunc>
@@ -18,6 +18,8 @@
 #include <osgUtil/IntersectVisitor>
 #include <osgViewer/Viewer>
 #include <string>
+#include <osg/ComputeBoundsVisitor>
+#include <osg/MatrixTransform>
 
 #include "tinyxml2.h"
 #include "terrainCreator.h"
@@ -42,10 +44,13 @@ int main(void)
 	//Initialize the scene viewer
 	osgViewer::Viewer viewer;
 
+	//DEBUG PARAMETERS
+
 	//0: vue du camion de haut
 	//1: Monde qui tourne autour du terrain
 	//2: Vue du camion a la premiere personne
-	int pointOfViewChoice = 0;
+	int pointOfViewChoice = 2;
+	bool debugBoundingBox = true;
 
 	//Root of the scene graph
 	osg::Group* root = new osg::Group();
@@ -57,7 +62,7 @@ int main(void)
 	//Chargement du model du camion
 	osg::Node* truckModel = osgDB::readNodeFile("models/t72-tank/t72-tank_des.flt");
 
-
+	
 
 	//Class qui gere les donnes des differents fichier
 	ClientDataManager* clientDataManager = new ClientDataManager();
@@ -86,6 +91,10 @@ int main(void)
 	root->addChild(terrainModele);
 
 	//Recuperation des arbres
+
+	//Groupe regroupant les bounding boxes des arbres
+	std::vector <osg::BoundingBox> tree_bouding_boxes;
+
 	std::ifstream  data("client_data/Arbres.csv");
 
 	std::string line;
@@ -93,6 +102,7 @@ int main(void)
 
 	int j = 0;
 
+	// On parcours la liste d'arbre et les ajoutes un a un 
 	while (std::getline(data, line))
 	{
 		int k = 0;
@@ -144,15 +154,27 @@ int main(void)
 			root->addChild(treeXForm);
 
 			treeXForm->setPosition(treePos);
-			//Random rotation
-			double randRotation = rand() % (360 - 1 + 1) + 1;
-			treeXForm->setAttitude(osg::Quat(randRotation, osg::Vec3(0, 0, 1)));
+			treeXForm->computeBound();
 
-			if (espece == 'C') {
+			//Random rotation
+			//double randRotation = rand() % (360 - 1 + 1) + 1;
+			double randRotation = 0.0;
+			treeXForm->setAttitude(osg::Quat(osg::DegreesToRadians(randRotation), osg::Vec3(0, 0, 1)));
+
+			// offset pour corriger la position de la bounding box (collision)
+			osg::Vec3 treeCenterOffset(0, 0, 0);
+
+			// taille de la bounding box (padding interne x et y) plus on se rapproche de 0.5 plus c'est petit
+			double boundingBoxScale = 0.49;
+
+			if (espece == 'C'){
+				boundingBoxScale = 0.495;
+				treeCenterOffset.set(-0.1, 0.56, 0);
 				treeXForm->addChild(secondTree);
-				treeXForm->setScale(osg::Vec3(0.2, 0.2, 0.2) * height);
+				treeXForm->setScale(osg::Vec3(0.5, 0.5, 0.5) * height);
 			}
 			else if(espece == 'F') {
+				treeCenterOffset.set(0.08, -0.2, 0);
 				//Rand between 1 and 2
 				int randTree = rand() % (2 - 1 + 1) + 1;
 				//Birch
@@ -167,6 +189,53 @@ int main(void)
 					treeXForm->setScale(osg::Vec3(1, 1, 1) * height / 33.22 * 0.02);
 				}
 			}
+
+			//Calcul du bounding box
+			
+			osg::BoundingSphere currentTreeBB = treeXForm->getBound();
+
+			//Calculer l'orientation actuel (en vecteur 3D)
+			osg::Vec3 orientation = osg::Vec3(cos(osg::DegreesToRadians(randRotation + 90)), sin(osg::DegreesToRadians(randRotation + 90)), 0);
+			// La direction perpendiculaire (utile pour la bounding box)
+			osg::Vec3 orientation_perp = osg::Vec3(cos(osg::DegreesToRadians(randRotation)), sin(osg::DegreesToRadians(randRotation)), 0);
+			
+			// On va corriger legerement le centre de chaque arbre
+			currentTreeBB.set(currentTreeBB.center() + orientation * treeCenterOffset.x() + orientation_perp * treeCenterOffset.y(), currentTreeBB.radius());
+
+			osg::BoundingBox  bb;
+			bb.expandBy(currentTreeBB);
+
+			// On rend les orientations unitaires
+			orientation.normalize();
+			orientation_perp.normalize();
+
+			double bbXlenght = bb.xMax() - bb.xMin();
+			double bbYlenght = bb.yMax() - bb.yMin();
+
+			double internePadding =boundingBoxScale;
+			bb.set(bb.xMin()+ bbXlenght* internePadding,bb.yMin() + bbYlenght* internePadding,bb.zMin(), bb.xMax()- bbXlenght* internePadding, bb.yMax()- bbYlenght* internePadding, bb.zMin() + 10);
+			
+			if (debugBoundingBox) {
+				osg::Geode* bbRepresentationGeode = new osg::Geode();
+
+				// Box pour afficher la boite englobante des arbres
+				osg::Box* boxDebugTree = new osg::Box();
+				osg::PositionAttitudeTransform*  PATDebugTree = new osg::PositionAttitudeTransform();
+				PATDebugTree->setPosition(bb.center());
+				PATDebugTree->setScale((bb._max - bb._min));
+
+				PATDebugTree->addChild(new osg::ShapeDrawable(boxDebugTree));
+				PATDebugTree->addChild(bbRepresentationGeode);
+				root->addChild(PATDebugTree);
+
+				PATDebugTree->getOrCreateStateSet()->setAttributeAndModes(
+					new osg::PolygonMode(osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::LINE));
+				//std::cout << bb.xMin() << " " << bb.xMax() << " " << bb.yMin() << " " << bb.yMax() << " " << bb.zMin() << " " << bb.zMax() << "\n";
+			}
+			
+			//Ajoute a la liste des bounding box d'arbres
+			tree_bouding_boxes.push_back(bb);
+			
 		}
 		j++;
 	}
@@ -177,7 +246,7 @@ int main(void)
 	root->addChild(truckXForm);
 	truckXForm->addChild(truckModel);
 
-	//on le met a la position du dernier arbre
+	//on le met a la position au centre
 	truckXForm->setPosition(converter->getMapCenter(heightMap));
 	truckXForm->setScale(osg::Vec3(0.4f, 0.4f, 0.4f));
 	//Declare instance of class to record state of keyboard
@@ -186,7 +255,25 @@ int main(void)
 	// Set up the truck update callback
 	//  pass the constructor a pointer to our truck input device state
 	//  that we declared above.
-	updateTruckPosCallback* truckUpdater =  new updateTruckPosCallback(tIDevState, terrainModele);
+	updateTruckPosCallback* truckUpdater =  new updateTruckPosCallback(tIDevState, terrainModele, tree_bouding_boxes);
+	
+	if (debugBoundingBox) {
+
+		osg::Geode* bbTruckRepresentationGeode = new osg::Geode();
+		osg::Box* bbTruckRepresentationBox = new osg::Box(osg::Vec3(0,0,0),1.0,1.0,1.0);
+
+		bbTruckRepresentationGeode->addDrawable(new osg::ShapeDrawable(bbTruckRepresentationBox));
+		
+		bbTruckRepresentationGeode->getOrCreateStateSet()->setAttributeAndModes(
+			new osg::PolygonMode(osg::PolygonMode::FRONT_AND_BACK, osg::PolygonMode::LINE));
+		osg::PositionAttitudeTransform* boxTrans = new osg::PositionAttitudeTransform();
+
+		root->addChild(boxTrans);
+		boxTrans->addChild(bbTruckRepresentationGeode);
+
+		truckUpdater->setBbTruckVisual(boxTrans);
+	}
+
 	truckXForm->setUpdateCallback(truckUpdater);
 
 	// The constructor for our event handler also gets a pointer to
@@ -231,6 +318,7 @@ int main(void)
 	if (pointOfViewChoice == 1) {
 		viewer.setCameraManipulator(new osgGA::TerrainManipulator());
 	}
+
 
 
 	viewer.realize();
